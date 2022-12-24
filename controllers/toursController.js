@@ -23,7 +23,6 @@ const deleteTour = (req, res) => {
 
 const getTours = (req, res) => {
   console.log("get all tours");
-  console.log(req.requestTime);
   res.status(200).json({ status: "get all tours", data: {} });
 };
 
