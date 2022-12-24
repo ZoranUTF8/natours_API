@@ -1,5 +1,7 @@
 const express = require("express");
+
 const app = express();
+
 app.use(express.json());
 //! Middleware
 const authenticationMiddleware = require("./middleware/authentication");
