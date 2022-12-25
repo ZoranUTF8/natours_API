@@ -16,20 +16,65 @@ const createTour = async (req, res) => {
       .json({ status: "Tour not created.", data: { error: err } });
   }
 };
-const getTour = (req, res) => {
-  const { id } = req.params;
-  console.log("get single tour");
-  res.status(200).json({ status: "get a single tour", data: { id } });
+const getTour = async (req, res) => {
+  const tour = await Tour.findOne({ _id: req.params.id });
+  try {
+    if (tour) {
+      res.status(StatusCodes.OK).json({ status: "success", data: { tour } });
+    } else {
+      res.status(StatusCodes.NOT_FOUND).json({
+        status: "failed",
+        data: {
+          error: `No tour found for the provided id of: ${req.params.id}`,
+        },
+      });
+    }
+  } catch (err) {
+    res.status(StatusCodes.NOT_FOUND).json({
+      status: "failed",
+      data: {
+        error: `${err}`,
+      },
+    });
+  }
 };
-const updateTour = (req, res) => {
-  const { id } = req.params;
+const updateTour = async (req, res) => {
+  try {
+    const updatedTour = await Tour.findOneAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true,
+    });
+    if (!updatedTour) {
+      res
+        .status(StatusCodes.NOT_FOUND)
+        .json({ status: "failed", error: updatedTour });
+    }
 
-  res.status(200).json({ status: "update tour", data: { id } });
+    res.status(StatusCodes.OK).json({ status: "success", data: updatedTour });
+  } catch (error) {
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ status: "failed", error: error });
+  }
 };
-const deleteTour = (req, res) => {
-  const { id } = req.params;
+const deleteTour = async (req, res) => {
+  try {
+    const deletedTour = await Tour.findByIdAndDelete(req.params.id);
 
-  res.status(200).json({ status: "delete tour", data: { id } });
+    if (!deletedTour) {
+      console.log("here");
+      res.status(StatusCodes.NOT_FOUND).json({
+        status: "failed",
+        error: `No tour found for provided id of ${req.params.id}`,
+      });
+    } else {
+      res.status(StatusCodes.OK).json({ status: "success", data: deletedTour });
+    }
+  } catch (error) {
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ status: "failed", error: error });
+  }
 };
 
 const getTours = (req, res) => {

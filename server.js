@@ -1,7 +1,6 @@
 const dotenv = require("dotenv");
 const connectDb = require("./db/connect");
 const colors = require("colors/safe");
-const Tour = require("./models/Tour");
 
 dotenv.config({ path: "./config.env" });
 const app = require("./app");
