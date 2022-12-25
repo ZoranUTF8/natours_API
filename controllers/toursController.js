@@ -1,9 +1,20 @@
 const { StatusCodes } = require("http-status-codes");
+const Tour = require("../models/Tour");
 
-const createTour = (req, res) => {
-  console.log("create tour");
+const createTour = async (req, res) => {
+  try {
+    const creatingTourResult = await Tour.create(req.body);
 
-  res.status(StatusCodes.OK).json({ status: "created a tour", data: {} });
+    if (creatingTourResult) {
+      res
+        .status(StatusCodes.CREATED)
+        .json({ status: "Tour created.", data: { creatingTourResult } });
+    }
+  } catch (err) {
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ status: "Tour not created.", data: { error: err } });
+  }
 };
 const getTour = (req, res) => {
   const { id } = req.params;
