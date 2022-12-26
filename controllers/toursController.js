@@ -3,17 +3,18 @@ const Tour = require("../models/Tour");
 
 const createTour = async (req, res) => {
   try {
-    const creatingTourResult = await Tour.create(req.body);
+    const tour = await Tour.create(req.body);
 
-    if (creatingTourResult) {
+    if (tour) {
       res
         .status(StatusCodes.CREATED)
-        .json({ status: "Tour created.", data: { creatingTourResult } });
+        .json({ status: "Tour created.", data: { tour } });
     }
   } catch (err) {
-    res
-      .status(StatusCodes.BAD_REQUEST)
-      .json({ status: "Tour not created.", data: { error: err } });
+    res.status(StatusCodes.BAD_REQUEST).json({
+      status: "Tour not created. Value",
+      data: { error: err.keyValue },
+    });
   }
 };
 const getTour = async (req, res) => {
@@ -77,9 +78,40 @@ const deleteTour = async (req, res) => {
   }
 };
 
-const getTours = (req, res) => {
-  console.log("get all tours");
-  res.status(200).json({ status: "get all tours", data: {} });
+const getTours = async (req, res) => {
+  const queryObject = { ...req.query };
+  const excludedFields = ["page", "sort", "limit", "fields"];
+  excludedFields.forEach((el) => delete queryObject[el]);
+  
+  let queryStr = JSON.stringify(queryObject);
+  //* Replace the query string with the apropriate mongodb operators
+  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
+  //! returns a query object
+  const userQuery = Tour.find(JSON.parse(queryStr));
+
+  const tours = await userQuery;
+  try {
+    if (tours) {
+      res
+        .status(StatusCodes.OK)
+        .json({ status: "success", items: tours.length, data: { tours } });
+    } else {
+      res.status(StatusCodes.NOT_FOUND).json({
+        status: "failed",
+        data: {
+          error: `No tours found.`,
+        },
+      });
+    }
+  } catch (err) {
+    res.status(StatusCodes.NOT_FOUND).json({
+      status: "failed",
+      data: {
+        error: `${err}`,
+      },
+    });
+  }
 };
 
 module.exports = {

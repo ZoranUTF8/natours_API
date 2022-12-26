@@ -1,0 +1,8 @@
+1 make basic routing
+
+2  make models
+
+3 populate data for testing
+
+4 Add api features 
+- Filtering using query string
