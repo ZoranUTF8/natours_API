@@ -6,3 +6,7 @@
 
 4 Add api features 
 - Filtering using query string
+-   Aliasing - most popular searches ( best 5 cheap tours)
+
+
+5 Error handling

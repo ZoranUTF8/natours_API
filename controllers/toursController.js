@@ -1,5 +1,14 @@
 const { StatusCodes } = require("http-status-codes");
+const TourApiFunctions = require("../CustomClasses/TourApiFunctions");
 const Tour = require("../models/Tour");
+
+const aliasGetTopFive = (req, res, next) => {
+  //* We prefil the query filters so we get the top 5
+  req.query.limit = "5";
+  req.query.sort = "-ratingAverage,price";
+  req.query.fields = "name,price,ratingAverage,duration,summary,description";
+  next();
+};
 
 const createTour = async (req, res) => {
   try {
@@ -79,19 +88,18 @@ const deleteTour = async (req, res) => {
 };
 
 const getTours = async (req, res) => {
-  const queryObject = { ...req.query };
-  const excludedFields = ["page", "sort", "limit", "fields"];
-  excludedFields.forEach((el) => delete queryObject[el]);
-  
-  let queryStr = JSON.stringify(queryObject);
-  //* Replace the query string with the apropriate mongodb operators
-  queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+  // const excludedFields = ["page", "sort", "limit", "fields"];
+  // excludedFields.forEach((el) => delete queryObject[el]);
 
-  //! returns a query object
-  const userQuery = Tour.find(JSON.parse(queryStr));
-
-  const tours = await userQuery;
   try {
+    const ApiFunctions = new TourApiFunctions(Tour.find(), req.query)
+      .filter()
+      .sort()
+      .limitFields()
+      .paginate();
+
+    const tours = await ApiFunctions.query;
+
     if (tours) {
       res
         .status(StatusCodes.OK)
@@ -120,4 +128,5 @@ module.exports = {
   updateTour,
   deleteTour,
   getTours,
+  aliasGetTopFive,
 };
