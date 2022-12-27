@@ -4,9 +4,64 @@
 
 3 populate data for testing
 
-4 Add api features 
+4 Add api features
+
 - Filtering using query string
 -   Aliasing - most popular searches ( best 5 cheap tours)
+- Aggregaton pipline for data agregation ( Matching and Grouping ) 
+And so the aggregation pipeline is a bit
+like a regular query and so using the aggregation pipeline
+it's a just a bit like doing a regular query.
+The difference here is that in aggregations,
+as I already mentioned, we can manipulate the data
+in a couple of different steps
+and so let's now actually define these steps.
+And for that, we pass in an array of so-called stages.
+So we pass in an array, and then here we will
+then have a lot of stages.
+All document from a colectio go trough the pipeline so we can process them step by step
+Example: Calcualte averages, mins and max.
+We can use to get the stats for our charts 
+
+Total tours:
+// For each document that goes trought the pipeline add 1
+          totalTours:{$sum:1},
+
+Group by 
+          _id: { $toUpper: "$difficulty" },
+
+Unwind
+And what unwind is gonna do is basically deconstruct
+an array field from the info documents
+and then output one document for each element of the array.
+
+
+Add virtual properties  now virtual properties are basically fields
+that we can define on our schema
+but that will not be persisted.
+So they will not be saved into the database
+in order to save us some space there.
+And most of the time, of course,
+we want to really save our data to the database,
+
+Add pre and post mongoose middleware
+// Mongoose midleware runs on save() and create()
+
+
+Add query middleware
+And, as the name says, query middleware
+allows us to run functions before or after
+a certain query is executed.
+Example as the pre find hook
+
+Add agregation middleware if needed all of them
+
+
+5. Add validation with built in validators
+ validation is basically checking if the entered
+values are in the right format for each field
+in our document schema, and also that values
+have actually been entered for all of the required fields.
 
 
 5 Error handling

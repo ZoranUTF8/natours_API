@@ -2,13 +2,6 @@ const { StatusCodes } = require("http-status-codes");
 const TourApiFunctions = require("../CustomClasses/TourApiFunctions");
 const Tour = require("../models/Tour");
 
-const aliasGetTopFive = (req, res, next) => {
-  //* We prefil the query filters so we get the top 5
-  req.query.limit = "5";
-  req.query.sort = "-ratingAverage,price";
-  req.query.fields = "name,price,ratingAverage,duration,summary,description";
-  next();
-};
 
 const createTour = async (req, res) => {
   try {
@@ -86,7 +79,6 @@ const deleteTour = async (req, res) => {
       .json({ status: "failed", error: error });
   }
 };
-
 const getTours = async (req, res) => {
   // const excludedFields = ["page", "sort", "limit", "fields"];
   // excludedFields.forEach((el) => delete queryObject[el]);
@@ -122,11 +114,129 @@ const getTours = async (req, res) => {
   }
 };
 
+//! Tours stats for charts
+const getTourBasicStats = async (req, res) => {
+  try {
+    const toursStats = await Tour.aggregate([
+      {
+        $match: { ratingAverage: { $gte: 0 } },
+      },
+      {
+        $group: {
+          _id: null,
+          totalTours: { $sum: 1 },
+          totalRatings: { $sum: "$ratingQuantity" },
+          avgRating: { $avg: "$ratingAverage" },
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $max: "$price" },
+        },
+      },
+      {
+        $sort: {
+          minPrice: 1,
+        },
+      },
+    ]);
+
+    res
+      .status(StatusCodes.OK)
+      .json({ status: "success", data: { toursStats } });
+  } catch (error) {
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ status: "fail", message: error });
+  }
+};
+
+const getToursStatsByDifficulty = async (req, res) => {
+  try {
+    const toursStats = await Tour.aggregate([
+      {
+        $match: { ratingAverage: { $gte: 0 } },
+      },
+      {
+        $group: {
+          _id: { $toUpper: "$difficulty" },
+          totalTours: { $sum: 1 },
+          totalRatings: { $sum: "$ratingQuantity" },
+          avgRating: { $avg: "$ratingAverage" },
+          avgPrice: { $avg: "$price" },
+          minPrice: { $min: "$price" },
+          maxPrice: { $max: "$price" },
+        },
+      },
+      {
+        $sort: {
+          minPrice: 1,
+        },
+      },
+    ]);
+
+    res
+      .status(StatusCodes.OK)
+      .json({ status: "success", data: { toursStats } });
+  } catch (error) {
+    res
+      .status(StatusCodes.BAD_REQUEST)
+      .json({ status: "fail", message: error });
+  }
+};
+
+//* Calculate the busiest month in the given year
+const getBusiestMonthInTheGivenYear = async (req, res) => {
+  try {
+    const year = +req.params.year;
+
+    const tourPlan = await Tour.aggregate([
+      { $unwind: "$startDates" },
+      {
+        $match: {
+          // match all the tours with the date for the year
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: "$startDates" },
+          numTourStart: { $sum: 1 },
+          tours: { $push: "$name" },
+        },
+      },
+      {
+        // add fields month with the value of the id
+        $addFields: { month: "$_id" },
+      },
+      {
+        // Decide what so show and what not here we dont show the id
+        $project: {
+          _id: 0,
+        },
+      },
+      {
+        // sort by descending
+        $sort: { numTourStart: -1 },
+      },
+    ]);
+
+    res
+      .status(StatusCodes.OK)
+      .json({ status: "success", count: tourPlan.length, data: { tourPlan } });
+  } catch (error) {
+    res.status(StatusCodes.BAD_REQUEST).json({ status: "fail" });
+  }
+};
+
 module.exports = {
   createTour,
   getTour,
   updateTour,
   deleteTour,
   getTours,
-  aliasGetTopFive,
+  getTourBasicStats,
+  getToursStatsByDifficulty,
+  getBusiestMonthInTheGivenYear,
 };
