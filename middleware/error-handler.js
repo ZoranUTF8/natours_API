@@ -5,13 +5,14 @@ const { StatusCodes } = require("http-status-codes");
 // const MONGOOSE_CAST_ERROR = "CastError";
 
 const errorHandlerMiddleware = (err, req, res, next) => {
-  console.log("ERROR CAME IN: ");
-  // custom error
-  let customError = {
+  
+  console.error("ERROR IN ", err);
+
+  const customError = {
     statusCode: err.statusCode || StatusCodes.INTERNAL_SERVER_ERROR,
+    status: err.status || "Failed",
     msg: err.message || "Something went wrong",
   };
-
   //   // If error from mongoose make more user friendly error message
   //   if (err.name === MONGOOSE_VALIDATION_ERROR) {
   //     customError.msg = Object.values(err.errors)
@@ -34,8 +35,9 @@ const errorHandlerMiddleware = (err, req, res, next) => {
   //   }
 
   // Send the error message
-  // return res.status(customError.statusCode).json({ msg: customError.msg });
-  return res.status(500).json({ error: "error" });
+  return res
+    .status(customError.statusCode)
+    .json({ msg: customError.msg, status: customError.status });
 };
 
 module.exports = errorHandlerMiddleware;

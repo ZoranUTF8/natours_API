@@ -7,9 +7,7 @@ const auth = async (req, res, next) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader || !authHeader.startsWith("Bearer")) {
-    // throw new UnauthenticatedError("Invalid token");
-    // res.status(500).json({ error: "No auth token" });
-    next();
+    next(new UnauthenticatedError("Invalid token"));
   }
 
   next();
