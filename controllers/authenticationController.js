@@ -1,10 +1,15 @@
 const { StatusCodes } = require("http-status-codes");
+const User = require("../models/User");
+const catchAsyncError = require("../utils/catchAsyncError");
 
-const createUser = (req, res) => {
-  console.log("create user");
+// Register a new user
+const registerUser = catchAsyncError(async (req, res) => {
+  console.log("register user");
+  const user = await User.create(req.body);
 
-  res.status(StatusCodes.OK).json({ status: "created a user", data: {} });
-};
+  res.status(StatusCodes.OK).json({ status: "created a user", data: { user } });
+});
+
 const getUser = (req, res) => {
   const { id } = req.params;
   console.log("get user info");
@@ -27,7 +32,7 @@ const getUsers = (req, res) => {
 };
 
 module.exports = {
-  createUser,
+  registerUser,
   getUser,
   updateUser,
   deleteUser,

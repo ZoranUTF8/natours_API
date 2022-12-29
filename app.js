@@ -10,10 +10,10 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 const notFoundMiddleware = require("./middleware/resource-not-found");
 //! routers
 const toursRouter = require("./routes/tours");
-const usersRouter = require("./routes/users");
+const authRouter = require("./routes/auth");
 //! routes
 app.use("/api/v1/tours", toursRouter);
-app.use("/api/v1/users", usersRouter);
+app.use("/api/v1/auth", authRouter);
 
 //! Basic route
 app.get("/", (req, res) => {

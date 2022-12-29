@@ -64,6 +64,12 @@ in our document schema, and also that values
 have actually been entered for all of the required fields.
 
 
-5 Error handling
-create custom error classes and custom error handler that will handle all the error
+6. Error handling
+create custom error classes and custom error handler that will handle all the errors
+
 When we pass something to next, next assumes it is an error and jump straight to the global error handling middleware
+
+Add different error depending on the enviroment is it development or production
+
+7. Add User model for authentication and authorization
+- use validator for validation npm install validator
