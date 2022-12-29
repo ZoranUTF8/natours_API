@@ -11,9 +11,11 @@ const notFoundMiddleware = require("./middleware/resource-not-found");
 //! routers
 const toursRouter = require("./routes/tours");
 const authRouter = require("./routes/auth");
+const usersRouter = require("./routes/users");
 //! routes
-app.use("/api/v1/tours", toursRouter);
+app.use("/api/v1/tours", authenticationMiddleware, toursRouter);
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/users", usersRouter);
 
 //! Basic route
 app.get("/", (req, res) => {

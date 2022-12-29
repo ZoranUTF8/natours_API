@@ -1,6 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const User = require("../models/User");
 const catchAsyncError = require("../utils/catchAsyncError");
+const { BadRequestError, UnauthenticatedError } = require("../errors");
 
 // Register a new user
 const registerUser = catchAsyncError(async (req, res) => {
@@ -24,32 +25,44 @@ const registerUser = catchAsyncError(async (req, res) => {
     },
   });
 });
+// Login user
+const loginUser = catchAsyncError(async (req, res, next) => {
+  const { email, password } = req.body;
 
-const getUser = (req, res) => {
-  const { id } = req.params;
-  console.log("get user info");
-  res.status(200).json({ status: "get a single user info", data: { id } });
-};
-const updateUser = (req, res) => {
-  const { id } = req.params;
+  //? Check if email and password is present
+  if (!email || !password) {
+    next(new BadRequestError("Please check your input."));
+  }
+  //? Check if user is registered
+  const user = await User.findOne({ email });
+  //? If no user found with the email than throw error
+  if (!user) {
+    next(new BadRequestError("You are not registered, please register first."));
+  }
 
-  res.status(200).json({ status: "update user", data: { id } });
-};
-const deleteUser = (req, res) => {
-  const { id } = req.params;
+  //? Compare user password with the hashed password
+  const isPasswordCorrect = await user.comparePassword(password);
 
-  res.status(200).json({ status: "delete user", data: { id } });
-};
+  //? If passwords don't match than error message
+  if (!isPasswordCorrect) {
+    throw new UnauthenticatedError(
+      "Invalid credentials. Please check your input."
+    );
+  }
 
-const getUsers = (req, res) => {
-  console.log("get all users");
-  res.status(200).json({ status: "get all users", data: {} });
-};
+  //? If the user has the correct password then return the user data with a new jwt token
+  const token = await user.generateToken();
+
+  //? If all OK send user a token
+  res.status(StatusCodes.OK).json({
+    status: "success",
+    token,
+    data: user,
+  });
+});
 
 module.exports = {
   registerUser,
-  getUser,
-  updateUser,
-  deleteUser,
-  getUsers,
+
+  loginUser,
 };

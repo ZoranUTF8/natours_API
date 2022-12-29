@@ -23,6 +23,7 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: [true, "Please provide a password."],
       minLength: 8,
+      select: false,
     },
     passwordConfirm: {
       type: String,
@@ -38,7 +39,7 @@ const UserSchema = mongoose.Schema(
       type: String,
     },
   },
-  { timestamps: true } 
+  { timestamps: true }
 );
 
 //! Hash user password on register
@@ -49,7 +50,7 @@ UserSchema.pre("save", async function (next) {
   //   has the password and delete the confirmed
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
-  next();
+  return next();
 });
 
 // Schema instance methods
@@ -59,6 +60,11 @@ UserSchema.methods.generateToken = function () {
   return jwt.sign({ id: this._id, name: this.name }, process.env.JWT_KEY, {
     expiresIn: process.env.JWT_EXPIRATION,
   });
+};
+
+// Check if users password match
+UserSchema.methods.comparePassword = async function (passwordInput) {
+  return await bcrypt.compare(passwordInput, this.password);
 };
 
 const User = mongoose.model("User", UserSchema);
