@@ -6,7 +6,6 @@ class TourApiFunctions {
 
   filter() {
     //* Advanced filtering
-    console.log(this.query);
     const queryObject = { ...this.queryString };
 
     let queryStr = JSON.stringify(queryObject);
