@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
+const jwt = require("jsonwebtoken");
 
 const UserSchema = mongoose.Schema(
   {
@@ -37,9 +38,10 @@ const UserSchema = mongoose.Schema(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true } 
 );
 
+//! Hash user password on register
 UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
@@ -49,6 +51,16 @@ UserSchema.pre("save", async function (next) {
   this.passwordConfirm = undefined;
   next();
 });
+
+// Schema instance methods
+//! Generate a JWT for the user
+// Generate a new JWT token when the user registers
+UserSchema.methods.generateToken = function () {
+  return jwt.sign({ id: this._id, name: this.name }, process.env.JWT_KEY, {
+    expiresIn: process.env.JWT_EXPIRATION,
+  });
+};
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;

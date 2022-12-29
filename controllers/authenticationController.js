@@ -4,10 +4,25 @@ const catchAsyncError = require("../utils/catchAsyncError");
 
 // Register a new user
 const registerUser = catchAsyncError(async (req, res) => {
-  console.log("register user");
-  const user = await User.create(req.body);
+  //  Add user to the db after
 
-  res.status(StatusCodes.OK).json({ status: "created a user", data: { user } });
+  const newUser = await User.create({
+    name: req.body.name,
+    email: req.body.email,
+    password: req.body.password,
+    passwordConfirm: req.body.passwordConfirm,
+  });
+
+  // Generate and return a jwt token inside the user model as an instance method
+  const token = await newUser.generateToken();
+
+  res.status(StatusCodes.CREATED).json({
+    status: "success",
+    token,
+    user: {
+      newUser,
+    },
+  });
 });
 
 const getUser = (req, res) => {
