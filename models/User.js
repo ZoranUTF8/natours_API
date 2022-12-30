@@ -19,11 +19,16 @@ const UserSchema = mongoose.Schema(
       lowercase: true,
       validate: [validator.isEmail, "Please provide a valid email address."],
     },
+    role: {
+      type: String,
+      enum: ["user", "guide", "lead-guide", "admin"],
+      default: "user",
+    },
     password: {
       type: String,
       required: [true, "Please provide a password."],
       minLength: 8,
-      //! select: false, check later
+      select: false,
     },
     passwordConfirm: {
       type: String,
@@ -64,9 +69,12 @@ UserSchema.methods.generateToken = function () {
 };
 
 // Check if users password match
-UserSchema.methods.comparePassword = async function (passwordInput) {
-  const res = await bcrypt.compare(passwordInput, this.password);
-  return res;
+
+UserSchema.methods.comparePassword = async function (
+  candidatePassword,
+  userPassword
+) {
+  return await bcrypt.compare(candidatePassword, userPassword);
 };
 
 //  Check if password was changed since token was issued

@@ -1,5 +1,6 @@
 const express = require("express");
 const aliasGetTopFive = require("../middleware/top-five-tours");
+const restrictToMiddleware = require("../middleware/restrictToMiddleware");
 
 const router = express.Router();
 
@@ -15,7 +16,11 @@ const {
 } = require("../controllers/toursController");
 
 router.route("/").get(getTours).post(createTour);
-router.route("/:id").post(getTour).patch(updateTour).delete(deleteTour);
+router
+  .route("/:id")
+  .post(getTour)
+  .patch(updateTour)
+  .delete(restrictToMiddleware("admin"), deleteTour);
 router.route("/top-5-tours").get(aliasGetTopFive, getTours);
 //* Tours stats
 

@@ -7,12 +7,7 @@ const { BadRequestError, UnauthenticatedError } = require("../errors");
 const registerUser = catchAsyncError(async (req, res) => {
   //  Add user to the db after
 
-  const newUser = await User.create({
-    name: req.body.name,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
-  });
+  const newUser = await User.create(req.body);
 
   // Generate and return a jwt token inside the user model as an instance method
   const token = await newUser.generateToken();
@@ -34,14 +29,13 @@ const loginUser = catchAsyncError(async (req, res, next) => {
     next(new BadRequestError("Please check your input."));
   }
   //? Check if user is registered
-  const user = await User.findOne({ email });
+  const user = await User.findOne({ email }).select("+password");
   //? If no user found with the email than throw error
   if (!user) {
     next(new BadRequestError("You are not registered, please register first."));
   }
-
   //? Compare user password with the hashed password
-  const isPasswordCorrect = await user.comparePassword(password);
+  const isPasswordCorrect = await user.comparePassword(password, user.password);
 
   //? If passwords don't match than error message
   if (!isPasswordCorrect) {
