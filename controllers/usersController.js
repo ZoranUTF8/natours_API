@@ -1,35 +1,58 @@
 const { StatusCodes } = require("http-status-codes");
+const User = require("../models/User");
+const catchAsyncError = require("../utils/catchAsyncError");
+const {
+  BadRequestError,
+  UnauthenticatedError,
+  NotFoundError,
+} = require("../errors");
 
-const createUser = (req, res) => {
-  console.log("create user");
+const getUser = catchAsyncError(async (req, res) => {
+  const user = await User.findOne({ _id: req.params.id });
 
-  res.status(StatusCodes.OK).json({ status: "created a user", data: {} });
-};
-const getUser = (req, res) => {
-  const { id } = req.params;
-  console.log("get user info");
-  res.status(200).json({ status: "get a single user info", data: { id } });
-};
-const updateUser = (req, res) => {
-  const { id } = req.params;
+  if (!user) {
+    return next(
+      new NotFoundError(
+        `No user found with ${req.params.id}, check your input.`
+      )
+    );
+  }
 
-  res.status(200).json({ status: "update user", data: { id } });
-};
-const deleteUser = (req, res) => {
-  const { id } = req.params;
+  res.status(StatusCodes.OK).json({ status: "success", data: { user } });
+});
+const updateUser = catchAsyncError(async (req, res) => {
+  const updatedUser = await User.findOneAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
 
-  res.status(200).json({ status: "delete user", data: { id } });
-};
+  if (!updatedUser) {
+    return next(
+      new NotFoundError(
+        `No user found with ${req.params.id}, check your input.`
+      )
+    );
+  }
 
-const getUsers = (req, res) => {
-  console.log("get all users");
-  res.status(200).json({ status: "get all users", data: {} });
-};
+  res.status(StatusCodes.OK).json({ status: "success", data: updatedUser });
+});
+const deleteUser = catchAsyncError(async (req, res, next) => {
+  const deletedUser = await User.findByIdAndDelete(req.params.id);
 
-module.exports = {
-  createUser,
-  getUser,
-  updateUser,
-  deleteUser,
-  getUsers,
-};
+  if (!deletedUser) {
+    return next(
+      new NotFoundError(
+        `No user found with ${req.params.id}, check your input.`
+      )
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ status: "success", data: deletedUser });
+});
+const getUsers = catchAsyncError(async (req, res) => {
+  const allUsers = await User.find();
+
+  res.status(200).json({ status: "success", data: { users: allUsers } });
+});
+
+module.exports = { getUser, updateUser, deleteUser, getUsers };
