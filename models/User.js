@@ -23,7 +23,7 @@ const UserSchema = mongoose.Schema(
       type: String,
       required: [true, "Please provide a password."],
       minLength: 8,
-      select: false,
+      //! select: false, check later
     },
     passwordConfirm: {
       type: String,
@@ -38,6 +38,7 @@ const UserSchema = mongoose.Schema(
     avatar: {
       type: String,
     },
+    passwordChangedAt: Date,
   },
   { timestamps: true }
 );
@@ -64,9 +65,24 @@ UserSchema.methods.generateToken = function () {
 
 // Check if users password match
 UserSchema.methods.comparePassword = async function (passwordInput) {
-  return await bcrypt.compare(passwordInput, this.password);
+  const res = await bcrypt.compare(passwordInput, this.password);
+  return res;
 };
 
+//  Check if password was changed since token was issued
+UserSchema.methods.changedPassword = function (JWTTimestamp) {
+  if (this.passwordChangedAt) {
+    const changedTimestamp = parseInt(
+      this.passwordChangedAt.getTime() / 1000,
+      10
+    );
+
+    // if timestamp is less than than the password changed
+    return JWTTimestamp < changedTimestamp;
+  }
+  // False means password was not changed
+  return false;
+};
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;
