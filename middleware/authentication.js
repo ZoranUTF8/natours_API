@@ -37,8 +37,9 @@ const auth = catchAsyncError(async (req, res, next) => {
 
   // If all check completed grant access to the routes
   // attach the verified user to the employee routes
-  req.user = { name: user.name, email: user.email };
-  return next();
+  req.user = user;
+
+  next();
 });
 
 module.exports = auth;

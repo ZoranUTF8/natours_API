@@ -15,7 +15,7 @@ const usersRouter = require("./routes/users");
 //! routes
 app.use("/api/v1/tours", authenticationMiddleware, toursRouter);
 app.use("/api/v1/auth", authRouter);
-app.use("/api/v1/users", usersRouter);
+app.use("/api/v1/users", authenticationMiddleware, usersRouter);
 
 //! Basic route
 app.get("/", (req, res) => {
