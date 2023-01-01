@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const crypto = require("crypto");
 const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
@@ -21,7 +22,7 @@ const UserSchema = mongoose.Schema(
     },
     role: {
       type: String,
-      enum: ["user", "guide", "lead-guide", "admin"],
+      enum: ["user", "guide", "admin"],
       default: "user",
     },
     password: {
@@ -40,10 +41,10 @@ const UserSchema = mongoose.Schema(
       },
       message: "Passwords must be the same.",
     },
-    avatar: {
-      type: String,
-    },
+    avatar: String,
     passwordChangedAt: Date,
+    passwordResetToken: String,
+    passwordResetTokenExpires: Date,
   },
   { timestamps: true }
 );
@@ -59,7 +60,20 @@ UserSchema.pre("save", async function (next) {
   return next();
 });
 
+//! Update the password change date once we update the password
+UserSchema.pre("save", async function (next) {
+  //? If the password is modified and the document is NOT new tha update the password updated field
+  if (!this.isModified("password") || this.isNew) {
+    next();
+  } else {
+    //? We take one second from the time so we make sure that the JWT is created before the password has been changed
+    this.passwordChangedAt = Date.now() - 1000;
+    next();
+  }
+});
+
 // Schema instance methods
+
 //! Generate a JWT for the user
 // Generate a new JWT token when the user registers
 UserSchema.methods.generateToken = function () {
@@ -68,7 +82,7 @@ UserSchema.methods.generateToken = function () {
   });
 };
 
-// Check if users password match
+//! Check if users password match
 
 UserSchema.methods.comparePassword = async function (
   candidatePassword,
@@ -77,7 +91,7 @@ UserSchema.methods.comparePassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-//  Check if password was changed since token was issued
+//!  Check if password was changed since token was issued
 UserSchema.methods.changedPassword = function (JWTTimestamp) {
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
@@ -91,6 +105,23 @@ UserSchema.methods.changedPassword = function (JWTTimestamp) {
   // False means password was not changed
   return false;
 };
+
+//! Forgot password
+UserSchema.methods.createForgotPasswordToken = function () {
+  //? Generate the random password
+  const passwordResetToken = crypto.randomBytes(32).toString("hex");
+  //? Hash the pass reset token and set it to the current reset password token of the user
+  this.passwordResetToken = crypto
+    .createHash("sha256")
+    .update(passwordResetToken)
+    .digest("hex");
+
+  //! Valid only for 10 minutes
+  this.passwordResetTokenExpires = Date.now() + 10 * 60 * 1000;
+  //? Send the unhashed reset token to the user
+  return passwordResetToken;
+};
+
 const User = mongoose.model("User", UserSchema);
 
 module.exports = User;
