@@ -6,6 +6,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const User = require("../models/User");
 
 const auth = catchAsyncError(async (req, res, next) => {
+
   // Check request header for the jwt token
   const authHeader = req.headers.authorization;
 

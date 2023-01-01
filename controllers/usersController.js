@@ -7,6 +7,22 @@ const {
   NotFoundError,
 } = require("../errors");
 
+const deleteUser = catchAsyncError(async (req, res, next) => {
+  //? Set users active status to false later add delete
+  const userId = req.params.id;
+
+  const user = await User.findByIdAndUpdate(userId, { active: false });
+
+  if (!user) {
+    return next(
+      new NotFoundError(
+        `No user found with ${req.params.id}, check your input.`
+      )
+    );
+  }
+
+  res.status(StatusCodes.OK).json({ status: "success", data: user });
+});
 const getUser = catchAsyncError(async (req, res) => {
   const user = await User.findOne({ _id: req.params.id });
 
@@ -43,19 +59,7 @@ const updateUser = catchAsyncError(async (req, res, next) => {
 
   res.status(StatusCodes.OK).json({ status: "success", data: updatedUser });
 });
-const deleteUser = catchAsyncError(async (req, res, next) => {
-  const deletedUser = await User.findByIdAndDelete(req.params.id);
 
-  if (!deletedUser) {
-    return next(
-      new NotFoundError(
-        `No user found with ${req.params.id}, check your input.`
-      )
-    );
-  }
-
-  res.status(StatusCodes.OK).json({ status: "success", data: deletedUser });
-});
 const getUsers = catchAsyncError(async (req, res) => {
   const allUsers = await User.find();
 

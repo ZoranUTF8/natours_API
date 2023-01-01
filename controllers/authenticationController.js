@@ -1,10 +1,9 @@
 const { StatusCodes } = require("http-status-codes");
+const crypto = require("crypto");
 const User = require("../models/User");
 const catchAsyncError = require("../utils/catchAsyncError");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendEmail = require("../utils/SendPasswordResetEmail");
-
-const crypto = require("crypto");
 
 // Register a new user
 const registerUser = catchAsyncError(async (req, res) => {

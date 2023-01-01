@@ -41,6 +41,11 @@ const UserSchema = mongoose.Schema(
       },
       message: "Passwords must be the same.",
     },
+    active: {
+      type: Boolean,
+      default: true,
+      select: false,
+    },
     avatar: String,
     passwordChangedAt: Date,
     passwordResetToken: String,
@@ -70,6 +75,13 @@ UserSchema.pre("save", async function (next) {
     this.passwordChangedAt = Date.now() - 1000;
     next();
   }
+});
+
+//!  All querys that use find don't show documents the are inactive users
+//? We dont deleteusers, we just mark them inactive, later we can add a timer to delete after some time
+UserSchema.pre(/^find/, function (next) {
+  this.find({ active: { $ne: false } });
+  next();
 });
 
 //? Schema instance methods
