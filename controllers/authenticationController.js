@@ -58,7 +58,7 @@ const loginUser = catchAsyncError(async (req, res, next) => {
   });
 });
 
-// User password reset
+// Send user password reset email
 const forgotPassword = catchAsyncError(async (req, res, next) => {
   //? Get the user for the provide email
   const user = await User.findOne({ email: req.body.email });
@@ -105,6 +105,7 @@ const forgotPassword = catchAsyncError(async (req, res, next) => {
   }
 });
 
+// Handle the reset password request
 const resetPassword = catchAsyncError(async (req, res, next) => {
   //? Get user from the provided token
   const hashedToken = crypto
@@ -128,7 +129,7 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
   user.passwordResetTokenExpires = undefined;
 
   await user.save();
-  //? Log the user with the new JWT token
+  //? Log in the user with the new JWT token
   const token = await user.generateToken();
 
   res.status(StatusCodes.OK).json({
@@ -137,9 +138,42 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
     data: user,
   });
 });
+
+// Update user password
+const updateUserPassword = catchAsyncError(async (req, res, next) => {
+  const { oldPassword, newPassword, confirmNewPassword } = req.body;
+
+  // Get user current password and check with the logged in users password
+  const user = await User.findById({ _id: req.user.id }).select("+password");
+
+  //? Compare user password with the hashed password
+  const isPasswordCorrect = await user.comparePassword(
+    oldPassword,
+    user.password
+  );
+
+  // If correct than update and send with new jwt
+  if (isPasswordCorrect) {
+    //? Update the password changed at for the updated user
+    user.password = newPassword;
+    user.passwordConfirm = confirmNewPassword;
+    await user.save();
+    //? Log the user with the new JWT token
+    const token = await user.generateToken();
+
+    res.status(StatusCodes.OK).json({
+      status: "success",
+      token,
+      data: user,
+    });
+  } else {
+    next(new UnauthenticatedError("Incorrect password."));
+  }
+});
 module.exports = {
   registerUser,
   forgotPassword,
   resetPassword,
   loginUser,
+  updateUserPassword,
 };

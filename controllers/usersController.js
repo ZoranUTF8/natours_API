@@ -20,11 +20,18 @@ const getUser = catchAsyncError(async (req, res) => {
 
   res.status(StatusCodes.OK).json({ status: "success", data: { user } });
 });
-const updateUser = catchAsyncError(async (req, res) => {
-  const updatedUser = await User.findOneAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+const updateUser = catchAsyncError(async (req, res, next) => {
+  const { name, email } = req.body;
+  const userId = req.params.id;
+
+  const updatedUser = await User.findOneAndUpdate(
+    userId,
+    { name, email },
+    {
+      new: true,
+      runValidators: true,
+    }
+  );
 
   if (!updatedUser) {
     return next(

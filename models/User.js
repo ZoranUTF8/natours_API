@@ -62,7 +62,7 @@ UserSchema.pre("save", async function (next) {
 
 //! Update the password change date once we update the password
 UserSchema.pre("save", async function (next) {
-  //? If the password is modified and the document is NOT new tha update the password updated field
+  //? If the password is modified and the document is NOT new than update the password updated field
   if (!this.isModified("password") || this.isNew) {
     next();
   } else {
@@ -72,10 +72,10 @@ UserSchema.pre("save", async function (next) {
   }
 });
 
-// Schema instance methods
+//? Schema instance methods
 
 //! Generate a JWT for the user
-// Generate a new JWT token when the user registers
+//? Generate a new JWT token when the user registers
 UserSchema.methods.generateToken = function () {
   return jwt.sign({ id: this._id, name: this.name }, process.env.JWT_KEY, {
     expiresIn: process.env.JWT_EXPIRATION,
