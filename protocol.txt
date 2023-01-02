@@ -77,4 +77,6 @@ Add different error depending on the enviroment is it development or production
 
 8. Add user authorisation roles middlware who can acces what route 
 
-9. Add password reset functionality
+9. Add password reset functionality and update,delete user
+
+10.

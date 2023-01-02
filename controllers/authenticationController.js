@@ -5,7 +5,22 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendEmail = require("../utils/SendPasswordResetEmail");
 
-// Register a new user
+//? Cookie for the JWT
+const createCookieForJWT = (userJWTToken, res) => {
+  const expiryDate = new Date(
+    Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+  );
+
+  const cookieOptions = {
+    expires: expiryDate,
+    httpOnly: true,
+  };
+  if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
+
+  return res.cookie("JWT_STORAGE", userJWTToken, cookieOptions);
+};
+
+//? Register a new user
 const registerUser = catchAsyncError(async (req, res) => {
   //  Add user to the db after
 
@@ -14,6 +29,8 @@ const registerUser = catchAsyncError(async (req, res) => {
   // Generate and return a jwt token inside the user model as an instance method
   const token = await newUser.generateToken();
 
+  res.cookie = createCookieForJWT(token, res);
+  // newUser.password = undefined;
   res.status(StatusCodes.CREATED).json({
     status: "success",
     token,
