@@ -6,7 +6,8 @@ const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendEmail = require("../utils/SendPasswordResetEmail");
 
 //? Cookie for the JWT
-const createCookieForJWT = (userJWTToken, res) => {
+//* JWT schould be stored in a securre only http cookie
+const createCookieForJWTAndSendResponse = async (res, user) => {
   const expiryDate = new Date(
     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
   );
@@ -17,27 +18,26 @@ const createCookieForJWT = (userJWTToken, res) => {
   };
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
-  return res.cookie("JWT_STORAGE", userJWTToken, cookieOptions);
+  //? If the user has the correct password then return the user data with a new jwt token
+  const token = await user.generateToken();
+  res.cookie("JWT_STORAGE", token, cookieOptions);
+
+  // Remove password from output
+  user.password = undefined;
+
+  return res.status(StatusCodes.OK).json({
+    status: "success",
+    token,
+    data: user,
+  });
 };
 
 //? Register a new user
 const registerUser = catchAsyncError(async (req, res) => {
-  //  Add user to the db after
-
   const newUser = await User.create(req.body);
 
-  // Generate and return a jwt token inside the user model as an instance method
-  const token = await newUser.generateToken();
-
-  res.cookie = createCookieForJWT(token, res);
-  // newUser.password = undefined;
-  res.status(StatusCodes.CREATED).json({
-    status: "success",
-    token,
-    user: {
-      newUser,
-    },
-  });
+  //? If all OK send user a token
+  createCookieForJWTAndSendResponse(res, newUser);
 });
 // Login user
 const loginUser = catchAsyncError(async (req, res, next) => {
@@ -62,16 +62,8 @@ const loginUser = catchAsyncError(async (req, res, next) => {
       "Invalid credentials. Please check your input."
     );
   }
-
-  //? If the user has the correct password then return the user data with a new jwt token
-  const token = await user.generateToken();
-
   //? If all OK send user a token
-  res.status(StatusCodes.OK).json({
-    status: "success",
-    token,
-    data: user,
-  });
+  createCookieForJWTAndSendResponse(res, user);
 });
 
 // Send user password reset email
@@ -146,13 +138,9 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
 
   await user.save();
   //? Log in the user with the new JWT token
-  const token = await user.generateToken();
 
-  res.status(StatusCodes.OK).json({
-    status: "success",
-    token,
-    data: user,
-  });
+  //? If all OK send user a token
+  createCookieForJWTAndSendResponse(res, user);
 });
 
 // Update user password
@@ -173,15 +161,11 @@ const updateUserPassword = catchAsyncError(async (req, res, next) => {
     //? Update the password changed at for the updated user
     user.password = newPassword;
     user.passwordConfirm = confirmNewPassword;
-    await user.save();
-    //? Log the user with the new JWT token
-    const token = await user.generateToken();
 
-    res.status(StatusCodes.OK).json({
-      status: "success",
-      token,
-      data: user,
-    });
+    await user.save();
+
+    //? If all OK send user a token
+    createCookieForJWTAndSendResponse(res, user);
   } else {
     next(new UnauthenticatedError("Incorrect password."));
   }
