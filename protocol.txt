@@ -81,4 +81,6 @@ Add different error depending on the enviroment is it development or production
 
 10. Add security packages
 
-11. Add models specific
+11. Add models specifics Add model relationships
+
+12. Add nested routes as /tour/124124124/review

@@ -1,8 +1,8 @@
 const { StatusCodes } = require("http-status-codes");
 const TourApiFunctions = require("../CustomClasses/TourApiFunctions");
 const NotFoundError = require("../errors/NotFoundError");
-
 const Tour = require("../models/Tour");
+
 const catchAsyncError = require("../utils/catchAsyncError");
 
 const createTour = catchAsyncError(async (req, res) => {
@@ -13,7 +13,7 @@ const createTour = catchAsyncError(async (req, res) => {
     .json({ status: "Tour created.", data: { tour } });
 });
 const getTour = catchAsyncError(async (req, res, next) => {
-  const tour = await Tour.findOne({ _id: req.params.id });
+  const tour = await Tour.findById(req.params.id).populate("reviews");
 
   if (!tour) {
     return next(

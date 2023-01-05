@@ -11,8 +11,10 @@ async function importData() {
     //   * Connect to atlas db
     await connectDB(process.env.MONGO_CLOUD_DB_COONECTION);
     // * get json data
-    const jsonData = JSON.parse(await readFileSync("./tours.json", "utf8"));
-    // *Delete he previouse database
+    const jsonData = JSON.parse(
+      await readFileSync("./toursWithGeolocation.json", "utf8")
+    );
+    // *Delete the previouse database
     await Tour.deleteMany();
     // *Populate with new datga
     await Tour.create(jsonData);
@@ -29,3 +31,5 @@ if (process.argv[2] === "--import") {
 } else if (process.argv[2] === "--some other command arg") {
   //   We can add other function
 }
+
+// importData();

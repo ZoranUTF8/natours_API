@@ -49,11 +49,13 @@ app.use(express.static(`${__dirname}/public`));
 const toursRouter = require("./routes/tours");
 const authRouter = require("./routes/auth");
 const usersRouter = require("./routes/users");
+const reviewsRouter = require("./routes/reviews");
 
 //! routes
 app.use("/api/v1/tours", authenticationMiddleware, toursRouter);
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/users", authenticationMiddleware, usersRouter);
+app.use("/api/v1/reviews", authenticationMiddleware, reviewsRouter);
 
 //! Basic route
 app.get("/", (req, res) => {
