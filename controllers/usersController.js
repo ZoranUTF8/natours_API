@@ -1,11 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const User = require("../models/User");
 const catchAsyncError = require("../utils/catchAsyncError");
-const {
-  BadRequestError,
-  UnauthenticatedError,
-  NotFoundError,
-} = require("../errors");
+const { NotFoundError } = require("../errors");
 const { deleteOne, updateOne, getOne, getAll } = require("./handlerFactory");
 
 //? Set user inactive if he wants to delete himself

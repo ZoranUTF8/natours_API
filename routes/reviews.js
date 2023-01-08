@@ -23,8 +23,8 @@ router
 
 router
   .route("/:id")
-  .patch(updateReview)
-  .delete(deleteReview)
+  .patch(restrictToMiddleware("admin", "user"), updateReview)
+  .delete(restrictToMiddleware("admin", "user"), deleteReview)
   .get(getSingleReview);
 
 module.exports = router;

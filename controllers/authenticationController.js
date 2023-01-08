@@ -38,7 +38,7 @@ const registerUser = catchAsyncError(async (req, res) => {
   //? If all OK send user a token
   createCookieForJWTAndSendResponse(res, newUser);
 });
-// Login user
+//? Login user
 const loginUser = catchAsyncError(async (req, res, next) => {
   const { email, password } = req.body;
 
@@ -65,7 +65,7 @@ const loginUser = catchAsyncError(async (req, res, next) => {
   createCookieForJWTAndSendResponse(res, user);
 });
 
-// Send user password reset email
+//? Send user password reset email
 const forgotPassword = catchAsyncError(async (req, res, next) => {
   //? Get the user for the provide email
   const user = await User.findOne({ email: req.body.email });
@@ -112,7 +112,7 @@ const forgotPassword = catchAsyncError(async (req, res, next) => {
   }
 });
 
-// Handle the reset password request
+//? Handle the reset password request
 const resetPassword = catchAsyncError(async (req, res, next) => {
   //? Get user from the provided token
   const hashedToken = crypto
