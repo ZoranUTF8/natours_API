@@ -3,6 +3,7 @@ const aliasGetTopFive = require("../middleware/top-five-tours");
 const restrictToMiddleware = require("../middleware/restrictToMiddleware");
 //! Router nested
 const reviewsRouter = require("./reviews");
+
 const router = express.Router();
 
 const {
@@ -16,7 +17,7 @@ const {
   getBusiestMonthInTheGivenYear,
 } = require("../controllers/toursController");
 
-//! Nested routes
+//! Nested routes that we give to the reviews router to handle
 router.use("/:tourId/reviews", reviewsRouter);
 
 router.route("/").get(getTours).post(createTour);

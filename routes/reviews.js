@@ -8,13 +8,23 @@ const {
   createReview,
   deleteReview,
   updateReview,
+  getSingleReview,
 } = require("../controllers/reviewsController");
+const setTourAndUserIDsForCreateReview = require("../middleware/setTourAndUserInCreateReview");
 
 router
   .route("/")
   .get(getReviews)
-  .post(restrictToMiddleware("user"), createReview)
+  .post(
+    restrictToMiddleware("user"),
+    setTourAndUserIDsForCreateReview,
+    createReview
+  );
+
+router
+  .route("/:id")
+  .patch(updateReview)
   .delete(deleteReview)
-  .patch(updateReview);
+  .get(getSingleReview);
 
 module.exports = router;

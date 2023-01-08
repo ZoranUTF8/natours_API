@@ -30,7 +30,7 @@ app.use("/api", limiter);
 app.use(mongoSanitize());
 //? Data sanitization against XSS (cross site scripting attack)
 app.use(xss());
-//? Preventing parameter polution
+//? Preventing parameter pollution
 app.use(
   hpp({
     whitelist: [

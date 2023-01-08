@@ -4,11 +4,13 @@ const router = express.Router();
 const {
   getUser,
   updateUser,
-  deleteUser,
+  deleteSelfByUser,
   getUsers,
+  deleteUserByAdmin,
 } = require("../controllers/usersController");
 
 router.route("/").get(getUsers);
-router.route("/:id").post(getUser).patch(updateUser).delete(deleteUser);
+router.route("/deleteMe").delete(deleteSelfByUser);
+router.route("/:id").post(getUser).patch(updateUser).delete(deleteUserByAdmin);
 
 module.exports = router;

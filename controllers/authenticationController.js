@@ -6,7 +6,7 @@ const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendEmail = require("../utils/SendPasswordResetEmail");
 
 //? Cookie for the JWT
-//* JWT schould be stored in a securre only http cookie
+//* JWT schould be stored in a secure only http cookie
 const createCookieForJWTAndSendResponse = async (res, user) => {
   const expiryDate = new Date(
     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -31,7 +31,6 @@ const createCookieForJWTAndSendResponse = async (res, user) => {
     data: user,
   });
 };
-
 //? Register a new user
 const registerUser = catchAsyncError(async (req, res) => {
   const newUser = await User.create(req.body);
@@ -170,6 +169,9 @@ const updateUserPassword = catchAsyncError(async (req, res, next) => {
     next(new UnauthenticatedError("Incorrect password."));
   }
 });
+
+
+
 module.exports = {
   registerUser,
   forgotPassword,
