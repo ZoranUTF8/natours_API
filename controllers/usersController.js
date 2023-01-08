@@ -6,7 +6,7 @@ const {
   UnauthenticatedError,
   NotFoundError,
 } = require("../errors");
-const { deleteOne, updateOne, getOne } = require("./handlerFactory");
+const { deleteOne, updateOne, getOne, getAll } = require("./handlerFactory");
 
 //? Set user inactive if he wants to delete himself
 const deleteSelfByUser = catchAsyncError(async (req, res, next) => {
@@ -31,11 +31,7 @@ const getUser = getOne(User);
 
 const updateUser = updateOne(User);
 
-const getUsers = catchAsyncError(async (req, res) => {
-  const allUsers = await User.find();
-
-  res.status(200).json({ status: "success", data: { users: allUsers } });
-});
+const getUsers = getAll(User);
 
 module.exports = {
   getUser,

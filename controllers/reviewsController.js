@@ -11,6 +11,7 @@ const Review = require("../models/Review");
 // const catchAsyncError = require("../utils/catchAsyncError");
 
 const getReviews = getAll(Review);
+
 const createReview = createOne(Review);
 
 const deleteReview = deleteOne(Review);
