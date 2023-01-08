@@ -59,6 +59,37 @@ const TourSchema = mongoose.Schema(
       type: String,
       required: [true, "A tour must have a cover image"],
     },
+    startLocation: {
+      //? GeoJSON
+      type: {
+        type: String,
+        default: "Point",
+        enum: ["Point"],
+      },
+      coordinates: [Number],
+      address: String,
+      description: String,
+    },
+    locations: [
+      {
+        type: {
+          type: String,
+          default: "Point",
+          enum: ["Point"],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
+    //? Reference to a guides object
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "User",
+      },
+    ],
     images: [String],
     startDates: [Date],
   },
@@ -70,18 +101,45 @@ TourSchema.virtual("durationInWeeks").get(function () {
   return this.duration / 7;
 });
 
-//! Mongoose midleware runs on save() and create()
+//! Virtual populate when we get one single tour so we cans how it's reviews
+//* Allows us to get the revies for a specific tour but without acualy perssitng it on our db  as there can be millions of reviews whic than would have to be saved in an reviews array
+TourSchema.virtual("reviews", {
+  ref: "Review",
+  foreignField: "tour",
+  localField: "_id",
+});
+
+//! Mongoose middleware runs on save() and create()
 TourSchema.pre("save", function (next) {
   this.slug = slugify(this.name, { lower: true });
   next();
 });
 
-//! Query middleware that will return us all the documents that are not active
-// ! Maybe add later
+//! If we want to embed the guides data into our tours we use this
+// TourSchema.pre("save", async function (next) {
+//   //? Get the guides information and embed them to the tour
+//   const tourGuidesPromises = this.guides.map(
+//     async (guideId) => await User.findById(guideId)
+//   );
+//   //? Once all promises fullfil add the data from them to the guides array for the specific tour
+//   this.guides = await Promise.all(tourGuidesPromises);
+//   next();
+// });
+
+//! Query middleware
+
+//?that will return us all the documents that are not active
 // TourSchema.pre("find", function (next) {
 //   this.find({ activeTour: { $eq: false } });
 //   next();
 // });
+//? Populate the guides in the tours
+TourSchema.pre(/^find/, function () {
+  this.populate({
+    path: "guides",
+    select: "-__v -updatedAt",
+  });
+});
 
 const Tour = mongoose.model("Tour", TourSchema);
 

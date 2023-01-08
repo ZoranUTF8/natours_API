@@ -1,3 +1,4 @@
+* Use the middlware for anything tha you want to do between the route hanlders with the request
 1 make basic routing
 
 2  make models
@@ -81,4 +82,10 @@ Add different error depending on the enviroment is it development or production
 
 10. Add security packages
 
-11. Add models specific
+11. Add models specifics Add model relationships
+
+12. Add nested routes as /tour/124124124/review
+
+13. As we have to many handler functions we can write  factory functions which returns another function
+- Which works with the help of js closures where the inner function has access to the variables of the 
+outer functions  even when the outer functions has already returned

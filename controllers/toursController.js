@@ -1,72 +1,26 @@
 const { StatusCodes } = require("http-status-codes");
 const TourApiFunctions = require("../CustomClasses/TourApiFunctions");
 const NotFoundError = require("../errors/NotFoundError");
-
 const Tour = require("../models/Tour");
+const {
+  deleteOne,
+  updateOne,
+  createOne,
+  getOne,
+  getAll,
+} = require("./handlerFactory");
+
 const catchAsyncError = require("../utils/catchAsyncError");
 
-const createTour = catchAsyncError(async (req, res) => {
-  const tour = await Tour.create(req.body);
+const createTour = createOne(Tour);
 
-  res
-    .status(StatusCodes.CREATED)
-    .json({ status: "Tour created.", data: { tour } });
-});
-const getTour = catchAsyncError(async (req, res, next) => {
-  const tour = await Tour.findOne({ _id: req.params.id });
+const getTour = getOne(Tour, { path: "reviews" });
 
-  if (!tour) {
-    return next(
-      new NotFoundError(
-        `No tour found with ${req.params.id}, check your input.`
-      )
-    );
-  }
+const updateTour = updateOne(Tour);
 
-  res.status(StatusCodes.OK).json({ status: "success", data: { tour } });
-});
-const updateTour = catchAsyncError(async (req, res, next) => {
-  const updatedTour = await Tour.findOneAndUpdate(req.params.id, req.body, {
-    new: true,
-    runValidators: true,
-  });
+const deleteTour = deleteOne(Tour);
 
-  if (!updatedTour) {
-    return next(
-      new NotFoundError(
-        `No tour found with ${req.params.id}, check your input.`
-      )
-    );
-  }
-
-  res.status(StatusCodes.OK).json({ status: "success", data: updatedTour });
-});
-const deleteTour = catchAsyncError(async (req, res) => {
-  const deletedTour = await Tour.findByIdAndDelete(req.params.id);
-
-  if (!deletedTour) {
-    return next(
-      new NotFoundError(
-        `No tour found with ${req.params.id}, check your input.`
-      )
-    );
-  }
-
-  res.status(StatusCodes.OK).json({ status: "success", data: deletedTour });
-});
-const getTours = catchAsyncError(async (req, res) => {
-  const ApiFunctions = new TourApiFunctions(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-
-  const tours = await ApiFunctions.query;
-
-  res
-    .status(StatusCodes.OK)
-    .json({ status: "success", items: tours.length, data: { tours } });
-});
+const getTours = getAll(Tour);
 
 //! Tours stats for charts
 const getTourBasicStats = catchAsyncError(async (req, res) => {
