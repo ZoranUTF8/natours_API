@@ -77,7 +77,6 @@ const getAll = (Model) =>
       .paginate();
 
     const docs = await ApiFunctions.query;
-
     res
       .status(StatusCodes.OK)
       .json({ status: "success", items: docs.length, data: { docs } });

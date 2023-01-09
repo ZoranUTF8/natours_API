@@ -6,7 +6,6 @@ const catchAsyncError = require("../utils/catchAsyncError");
 const User = require("../models/User");
 
 const auth = catchAsyncError(async (req, res, next) => {
-
   // Check request header for the jwt token
   const authHeader = req.headers.authorization;
 
@@ -39,7 +38,6 @@ const auth = catchAsyncError(async (req, res, next) => {
   // If all check completed grant access to the routes
   // attach the verified user to the employee routes
   req.user = user;
-
   next();
 });
 

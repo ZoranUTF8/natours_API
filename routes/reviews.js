@@ -1,5 +1,6 @@
 const express = require("express");
 const restrictToMiddleware = require("../middleware/restrictToMiddleware");
+const authenticationMiddleware = require("../middleware/authentication");
 
 const router = express.Router({ mergeParams: true });
 
@@ -12,11 +13,13 @@ const {
 } = require("../controllers/reviewsController");
 const setTourAndUserIDsForCreateReview = require("../middleware/setTourAndUserInCreateReview");
 
+router.use(authenticationMiddleware);
+
 router
   .route("/")
   .get(getReviews)
   .post(
-    restrictToMiddleware("user"),
+    restrictToMiddleware("user", "admin"),
     setTourAndUserIDsForCreateReview,
     createReview
   );

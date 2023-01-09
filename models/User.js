@@ -78,13 +78,13 @@ UserSchema.pre("save", async function (next) {
 });
 
 //!  All querys that use find don't show documents the are inactive users
-//? We dont deleteusers, we just mark them inactive, later we can add a timer to delete after some time
+//? We dont delete users, we just mark them inactive as only the admin can delete them.
 UserSchema.pre(/^find/, function (next) {
   this.find({ active: { $ne: false } });
   next();
 });
-
-//? Schema instance methods
+//? Schema static method that we call on the model
+//? Schema instance methods that we call on the model instance
 
 //! Generate a JWT for the user
 //? Generate a new JWT token when the user registers

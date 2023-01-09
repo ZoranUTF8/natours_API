@@ -96,7 +96,7 @@ const TourSchema = mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 //! Creating custom indexes only on most querried data
-//* If coolection is only written to but not querried no benefit adding indexes
+//* If collection is only written to but not querried no benefit adding indexes
 TourSchema.index({ price: 1, ratingAverage: -1 }); //* Compound index that gets the price ascending and  average descending
 TourSchema.index({ slug: 1 }); //* Slug
 

@@ -10,6 +10,9 @@ const {
 } = require("../controllers/usersController");
 const getMeMiddleware = require("../middleware/getMeMiddleware");
 const restrictToMiddleware = require("../middleware/restrictToMiddleware");
+const authenticationMiddleware = require("../middleware/authentication");
+
+router.use(authenticationMiddleware);
 
 router.route("/me").get(getMeMiddleware, getUser);
 router.route("/deleteMe").delete(deleteSelfByUser);
