@@ -95,6 +95,10 @@ const TourSchema = mongoose.Schema(
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+//! Creating custom indexes only on most querried data
+//* If coolection is only written to but not querried no benefit adding indexes
+TourSchema.index({ price: 1, ratingAverage: -1 }); //* Compound index that gets the price ascending and  average descending
+TourSchema.index({ slug: 1 }); //* Slug
 
 //! Virtual property which is not persisted in the db, but only present once we get the data
 TourSchema.virtual("durationInWeeks").get(function () {
@@ -102,7 +106,7 @@ TourSchema.virtual("durationInWeeks").get(function () {
 });
 
 //! Virtual populate when we get one single tour so we cans how it's reviews
-//* Allows us to get the revies for a specific tour but without acualy perssitng it on our db  as there can be millions of reviews whic than would have to be saved in an reviews array
+//* Allows us to get the reviews for a specific tour but without actually persisting it on our db  as there can be millions of reviews which than would have to be saved in an reviews array
 TourSchema.virtual("reviews", {
   ref: "Review",
   foreignField: "tour",
