@@ -97,10 +97,14 @@ const TourSchema = mongoose.Schema(
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
+
+//! Custom Index
+
 //! Creating custom indexes only on most querried data
 //* If collection is only written to but not querried no benefit adding indexes
 TourSchema.index({ price: 1, ratingAverage: -1 }); //* Compound index that gets the price ascending and  average descending
 TourSchema.index({ slug: 1 }); //* Slug
+TourSchema.index({ startLocation: "2dsphere" }); //* For geo spatial data
 
 //! Virtual property which is not persisted in the db, but only present once we get the data
 TourSchema.virtual("durationInWeeks").get(function () {

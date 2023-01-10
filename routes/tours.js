@@ -22,12 +22,14 @@ const {
   getTourBasicStats,
   getToursStatsByDifficulty,
   getBusiestMonthInTheGivenYear,
+  getToursWithinDistance,
+  getTourDistances,
 } = require("../controllers/toursController");
 
 //! Nested routes that we give to the reviews router to handle
 router.use("/:tourId/reviews", reviewsRouter);
 
-//? Get all tours and post a new tour
+//? Get all tours , post a new tour
 router
   .route("/")
   .get(getTours)
@@ -37,7 +39,7 @@ router
     createTour
   );
 
-//? Get a single tour and update a single tour and delete a single tour
+//? Get a single tour , update a single tour , delete a single tour
 router
   .route("/:id")
   .post(getTour)
@@ -51,6 +53,15 @@ router
     restrictToMiddleware("admin", "guide"),
     deleteTour
   );
+
+//? Geo data routes
+
+router
+  .route("/tours-within-radius/distance/:distance/center/:latlng/unit/:unit")
+  .get(getToursWithinDistance);
+router
+  .route("/tours-distances/distances/:latlng/unit/:unit")
+  .get(getTourDistances);
 
 //? Get top 5 tours by rating
 router.route("/top-5-tours").get(aliasGetTopFive, getTours);
