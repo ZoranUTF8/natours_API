@@ -27,12 +27,13 @@ async function importData() {
     // await Tour.deleteMany();
     // await User.deleteMany();
     // await Review.deleteMany();
-    // *Populate with new datga
-    // await Tour.create(toursJSON);
-    // await User.create(usersJSON, { validateBeforeSave: false });
-    // await Review.create(reviewsJSON);
+    // *Populate with new data
+    console.log("Start adding data");
+    await Tour.create(toursJSON);
+    await User.create(usersJSON, { validateBeforeSave: false });
+    await Review.create(reviewsJSON);
     console.log("Data added");
-    
+
     process.exit(0);
   } catch (error) {
     console.log(error);
