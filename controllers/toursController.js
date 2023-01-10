@@ -1,6 +1,7 @@
 const { StatusCodes } = require("http-status-codes");
 const TourApiFunctions = require("../CustomClasses/TourApiFunctions");
 const NotFoundError = require("../errors/NotFoundError");
+const BadRequestError = require("../errors/BadRequestError");
 const Tour = require("../models/Tour");
 const {
   deleteOne,
@@ -22,7 +23,7 @@ const deleteTour = deleteOne(Tour);
 
 const getTours = getAll(Tour);
 
-//! Tours stats for charts
+//? Tours stats for charts
 const getTourBasicStats = catchAsyncError(async (req, res) => {
   const toursStats = await Tour.aggregate([
     {
@@ -118,6 +119,68 @@ const getBusiestMonthInTheGivenYear = catchAsyncError(async (req, res) => {
     .json({ status: "success", count: tourPlan.length, data: { tourPlan } });
 });
 
+//* Get tours by radius
+// /tours-within-distance/:distance/center/:latlng/:unit
+// /tours-within-distance/250/center/-30,45/km
+const getToursWithinDistance = catchAsyncError(async (req, res, next) => {
+  const { distance, latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(",");
+
+  //? Radius of the sphere in radiants
+  //? Dividing the distance by the radius of the earth
+  const radius = unit === "mi" ? distance / 3963.2 : distance / 6378.1;
+
+  if (!distance || !latlng || !unit) {
+    next(new BadRequestError("Invalid request."));
+  }
+
+  //? GeoWithin finds documents inside the provided geometry
+  const tours = await Tour.find({
+    startLocation: { $geoWithin: { $centerSphere: [[lng, lat], radius] } },
+  });
+
+  res
+    .status(StatusCodes.OK)
+    .json({ status: "success", results: tours.length, data: { tours } });
+});
+
+//? Get tour distances
+const getTourDistances = catchAsyncError(async (req, res, next) => {
+  const { latlng, unit } = req.params;
+  const [lat, lng] = latlng.split(",");
+
+  if (!latlng || !unit) {
+    next(new BadRequestError("Invalid request."));
+  }
+
+  const multiplier = unit === "mi" ? 0.000621371 : 0.001;
+
+  //? GeoWithin finds documents inside the provided geometry
+  const tourDistances = await Tour.aggregate([
+    {
+      $geoNear: {
+        near: {
+          type: "Point",
+          coordinates: [lng * 1, lat * 1],
+        },
+        distanceField: "distance",
+        distanceMultiplier: multiplier,
+      },
+    },
+    {
+      $project: {
+        distance: 1,
+        name: 1,
+      },
+    },
+  ]);
+
+  res.status(StatusCodes.OK).json({
+    status: "success",
+    results: tourDistances.length,
+    data: { tourDistances },
+  });
+});
 module.exports = {
   createTour,
   getTour,
@@ -127,4 +190,6 @@ module.exports = {
   getTourBasicStats,
   getToursStatsByDifficulty,
   getBusiestMonthInTheGivenYear,
+  getToursWithinDistance,
+  getTourDistances,
 };
