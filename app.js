@@ -15,7 +15,6 @@ const limiter = rateLimit({
 const app = express();
 
 //! Middleware
-const authenticationMiddleware = require("./middleware/authentication");
 const errorHandlerMiddleware = require("./middleware/error-handler");
 const notFoundMiddleware = require("./middleware/resource-not-found");
 
