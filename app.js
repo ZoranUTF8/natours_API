@@ -3,6 +3,7 @@ const helmet = require("helmet");
 const mongoSanitize = require("express-mongo-sanitize");
 const xss = require("xss-clean");
 const hpp = require("hpp");
+const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 //? 200 requests per hour
 //* Prevent denail fo service and brute force attacks
@@ -19,6 +20,7 @@ const errorHandlerMiddleware = require("./middleware/error-handler");
 const notFoundMiddleware = require("./middleware/resource-not-found");
 
 //! Middleware in use
+app.use(cors());
 app.use(helmet());
 // ? Body parser, reading data frm the body to req.body
 app.use(express.json({ limit: "10kb" }));
