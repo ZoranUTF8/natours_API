@@ -48,14 +48,26 @@ const createOne = (Model) =>
       .json({ status: "Document created.", data: { createdDoc } });
   });
 
-const getOne = (Model, PopulateOption) =>
+const getOne = (Model, PopulateOption, queryFilterOption) =>
   catchAsyncError(async (req, res, next) => {
-    const query = Model.findById(req.params.id);
+    let query;
 
-    if (PopulateOption) query.populate(PopulateOption);
+    switch (queryFilterOption.queryFilter) {
+      case "ID":
+        query = await Model.findById(req.params.id);
+        break;
+      case "SLUG":
+        query = await Model.findOne(req.params.slug);
+        break;
+      default:
+        console.log("No such option in get one.");
+        break;
+    }
+
+    if (PopulateOption) query = query.populate(PopulateOption);
 
     const foundDoc = await query;
-
+    
     res
       .status(StatusCodes.OK)
       .json({ status: "Document found.", data: { foundDoc } });

@@ -6,7 +6,7 @@ const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendEmail = require("../utils/SendPasswordResetEmail");
 
 //? Cookie for the JWT
-//* JWT schould be stored in a secure only http cookie
+//* JWT should be stored in a secure only http cookie
 const createCookieForJWTAndSendResponse = async (res, user) => {
   const expiryDate = new Date(
     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -16,13 +16,14 @@ const createCookieForJWTAndSendResponse = async (res, user) => {
     expires: expiryDate,
     httpOnly: true,
   };
+
   if (process.env.NODE_ENV === "production") cookieOptions.secure = true;
 
   //? If the user has the correct password then return the user data with a new jwt token
   const token = await user.generateToken();
   res.cookie("JWT_STORAGE", token, cookieOptions);
 
-  // Remove password from output
+  //? Remove password from output before we send the user back
   user.password = undefined;
 
   return res.status(StatusCodes.OK).json({
@@ -34,7 +35,6 @@ const createCookieForJWTAndSendResponse = async (res, user) => {
 //? Register a new user
 const registerUser = catchAsyncError(async (req, res) => {
   const newUser = await User.create(req.body);
-
   //? If all OK send user a token
   createCookieForJWTAndSendResponse(res, newUser);
 });
@@ -52,6 +52,7 @@ const loginUser = catchAsyncError(async (req, res, next) => {
   if (!user) {
     next(new BadRequestError("You are not registered, please register first."));
   }
+
   //? Compare user password with the hashed password
   const isPasswordCorrect = await user.comparePassword(password, user.password);
 
@@ -169,8 +170,6 @@ const updateUserPassword = catchAsyncError(async (req, res, next) => {
     next(new UnauthenticatedError("Incorrect password."));
   }
 });
-
-
 
 module.exports = {
   registerUser,

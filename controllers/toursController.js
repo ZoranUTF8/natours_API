@@ -1,6 +1,4 @@
 const { StatusCodes } = require("http-status-codes");
-const TourApiFunctions = require("../CustomClasses/TourApiFunctions");
-const NotFoundError = require("../errors/NotFoundError");
 const BadRequestError = require("../errors/BadRequestError");
 const Tour = require("../models/Tour");
 const {
@@ -15,7 +13,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 
 const createTour = createOne(Tour);
 
-const getTour = getOne(Tour, { path: "reviews" });
+const getTour = getOne(Tour, { path: "reviews" }, { queryFilter: "SLUG" });
 
 const updateTour = updateOne(Tour);
 

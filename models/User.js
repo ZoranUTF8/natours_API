@@ -59,7 +59,7 @@ UserSchema.pre("save", async function (next) {
   if (!this.isModified("password")) {
     return next();
   }
-  //   has the password and delete the confirmed
+  //? hash the password and delete the confirmed password as we dont save it to db
   this.password = await bcrypt.hash(this.password, 12);
   this.passwordConfirm = undefined;
   return next();
@@ -95,7 +95,6 @@ UserSchema.methods.generateToken = function () {
 };
 
 //! Check if users password match
-
 UserSchema.methods.comparePassword = async function (
   candidatePassword,
   userPassword

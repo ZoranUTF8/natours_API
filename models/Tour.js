@@ -98,11 +98,10 @@ const TourSchema = mongoose.Schema(
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
-//! Custom Index
 
 //! Creating custom indexes only on most querried data
 //* If collection is only written to but not querried no benefit adding indexes
-TourSchema.index({ price: 1, ratingAverage: -1 }); //* Compound index that gets the price ascending and  average descending
+TourSchema.index({ price: 1, ratingAverage: -1 }); //* Compound index that gets the price ascending and average descending
 TourSchema.index({ slug: 1 }); //* Slug
 TourSchema.index({ startLocation: "2dsphere" }); //* For geo spatial data
 
@@ -111,7 +110,7 @@ TourSchema.virtual("durationInWeeks").get(function () {
   return this.duration / 7;
 });
 
-//! Virtual populate when we get one single tour so we cans how it's reviews
+//! Virtual populate when we get one single tour so we can show it's reviews
 //* Allows us to get the reviews for a specific tour but without actually persisting it on our db  as there can be millions of reviews which than would have to be saved in an reviews array
 TourSchema.virtual("reviews", {
   ref: "Review",
