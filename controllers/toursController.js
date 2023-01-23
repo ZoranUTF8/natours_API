@@ -13,7 +13,7 @@ const catchAsyncError = require("../utils/catchAsyncError");
 
 const createTour = createOne(Tour);
 
-const getTour = getOne(Tour, { path: "reviews" }, { queryFilter: "SLUG" });
+const getTour = getOne(Tour, { path: "reviews" }, { queryOption: "SLUG" });
 
 const updateTour = updateOne(Tour);
 
