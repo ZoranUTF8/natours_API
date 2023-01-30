@@ -8,7 +8,8 @@ const rateLimit = require("express-rate-limit");
 //? 200 requests per hour
 //* Prevent denail fo service and brute force attacks
 const limiter = rateLimit({
-  max: 200,
+  //! CHANGE BEFORE RELEASE
+  max: 1000,
   windowMs: 60 * 60 * 1000,
   message: "To many requests from your IP, please try again in 1 hour.",
 });
