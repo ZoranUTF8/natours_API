@@ -13,7 +13,11 @@ const catchAsyncError = require("../utils/catchAsyncError");
 
 const createTour = createOne(Tour);
 
-const getTour = getOne(Tour, { path: "reviews" }, { queryOption: "SLUG" });
+const getTour = getOne(
+  Tour,
+  { path: "reviews", fields: "_id reviewText rating user" },
+  { queryOption: "SLUG" }
+);
 
 const updateTour = updateOne(Tour);
 
@@ -179,6 +183,7 @@ const getTourDistances = catchAsyncError(async (req, res, next) => {
     data: { tourDistances },
   });
 });
+
 module.exports = {
   createTour,
   getTour,

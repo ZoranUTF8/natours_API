@@ -84,7 +84,7 @@ ReviewSchema.post("save", function () {
 });
 
 ReviewSchema.pre(/^findOneAnd/, async function (next) {
-  //? Get acces to the current document
+  //? Get access to the current document
   this.r = await this.clone().findOne();
   next();
 });
