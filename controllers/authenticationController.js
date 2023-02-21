@@ -6,7 +6,7 @@ const { BadRequestError, UnauthenticatedError } = require("../errors");
 const sendEmail = require("../utils/SendPasswordResetEmail");
 
 //? Cookie for the JWT
-//* JWT should be stored in a secure only http cookie
+//! JWT should be stored in a secure only http cookie that We add later
 const createCookieForJWTAndSendResponse = async (res, user) => {
   const expiryDate = new Date(
     Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
@@ -21,6 +21,7 @@ const createCookieForJWTAndSendResponse = async (res, user) => {
 
   //? If the user has the correct password then return the user data with a new jwt token
   const token = await user.generateToken();
+
   res.cookie("JWT_STORAGE", token, cookieOptions);
 
   //? Remove password from output before we send the user back
@@ -62,6 +63,7 @@ const loginUser = catchAsyncError(async (req, res, next) => {
       "Invalid credentials. Please check your input."
     );
   }
+
   //? If all OK send user a token
   createCookieForJWTAndSendResponse(res, user);
 });

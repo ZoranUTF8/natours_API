@@ -35,6 +35,8 @@ const auth = catchAsyncError(async (req, res, next) => {
     );
   }
 
+  console.log("USER IN AUTHENTICATION BACKEND ", user);
+
   // If all check completed grant access to the routes
   // attach the verified user to the employee routes
   req.user = user;

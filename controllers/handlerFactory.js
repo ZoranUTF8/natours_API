@@ -23,20 +23,22 @@ const deleteOne = (Model) =>
 //! Do not update passwords with this function
 const updateOne = (Model) =>
   catchAsyncError(async (req, res, next) => {
-    const updatedDoc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-      runValidators: true,
-    });
+    console.log("INSIDE BACKEND", req.params.id, req.body);
+    // const updatedDoc = await Model.findByIdAndUpdate(req.params.id, req.body, {
+    //   new: true,
+    //   runValidators: true,
+    // });
 
-    if (!updatedDoc) {
-      return next(
-        new NotFoundError(
-          `No document found with ${req.params.id}, check your input.`
-        )
-      );
-    }
+    // if (!updatedDoc) {
+    //   return next(
+    //     new NotFoundError(
+    //       `No document found with ${req.params.id}, check your input.`
+    //     )
+    //   );
+    // }
 
-    res.status(StatusCodes.OK).json({ status: "success", data: updatedDoc });
+    // res.status(StatusCodes.OK).json({ status: "success", data: updatedDoc });
+    res.status(StatusCodes.OK).json({ status: "success" });
   });
 
 const createOne = (Model) =>
