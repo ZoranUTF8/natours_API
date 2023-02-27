@@ -12,7 +12,7 @@ const handleJsonWebTokenError = (customError, err) => {
       break;
 
     default:
-      console.log("No such option.");
+      console.log("No such option in handle json web token error. ");
       break;
   }
 

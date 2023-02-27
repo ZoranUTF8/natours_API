@@ -32,7 +32,7 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     customError = handleMongooseCastError(customError, err);
   }
   // JWT invalid token
-  if (err.name === JWT_ERROR || EXPIRED_JWT) {
+  if (err.name === JWT_ERROR || err.name === EXPIRED_JWT) {
     customError = handleJsonWebTokenError(customError, err);
   }
 

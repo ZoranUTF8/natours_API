@@ -1,6 +1,6 @@
 const { StatusCodes } = require("http-status-codes");
 const catchAsyncError = require("../utils/catchAsyncError");
-const { NotFoundError } = require("../errors");
+const { NotFoundError, NoPermissionError } = require("../errors");
 const TourApiFunctions = require("../CustomClasses/TourApiFunctions");
 
 //? Universal fu ction for deleting one document
@@ -23,22 +23,25 @@ const deleteOne = (Model) =>
 //! Do not update passwords with this function
 const updateOne = (Model) =>
   catchAsyncError(async (req, res, next) => {
-    console.log("INSIDE BACKEND", req.params.id, req.body);
-    // const updatedDoc = await Model.findByIdAndUpdate(req.params.id, req.body, {
-    //   new: true,
-    //   runValidators: true,
-    // });
+    if (req.user.id === req.params.id) {
+      const updatedDoc = await Model.findByIdAndUpdate(req.user.id, req.body, {
+        new: true,
+        runValidators: true,
+      });
 
-    // if (!updatedDoc) {
-    //   return next(
-    //     new NotFoundError(
-    //       `No document found with ${req.params.id}, check your input.`
-    //     )
-    //   );
-    // }
-
-    // res.status(StatusCodes.OK).json({ status: "success", data: updatedDoc });
-    res.status(StatusCodes.OK).json({ status: "success" });
+      if (!updatedDoc) {
+        return next(
+          new NotFoundError(
+            `No document found with ${req.params.id}, check your input.`
+          )
+        );
+      }
+      res.status(StatusCodes.OK).json({ status: "success", data: updatedDoc });
+    } else {
+      return next(
+        new NoPermissionError(`You are not permitted to do perform this action`)
+      );
+    }
   });
 
 const createOne = (Model) =>
