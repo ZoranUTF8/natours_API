@@ -15,12 +15,14 @@ const authenticationMiddleware = require("../middleware/authentication");
 router.use(authenticationMiddleware);
 
 router.route("/me").get(getMeMiddleware, getUser);
+
 router.route("/deleteMe").delete(deleteSelfByUser);
 router
   .route("/:id")
   .post(restrictToMiddleware("admin"), getUser)
   .patch(updateUser)
   .delete(restrictToMiddleware("admin"), deleteUserByAdmin);
+
 router.route("/").get(restrictToMiddleware("admin"), getUsers);
 
 module.exports = router;

@@ -104,6 +104,7 @@ UserSchema.methods.comparePassword = async function (
 
 //!  Check if password was changed since token was issued
 UserSchema.methods.changedPassword = function (JWTTimestamp) {
+
   if (this.passwordChangedAt) {
     const changedTimestamp = parseInt(
       this.passwordChangedAt.getTime() / 1000,

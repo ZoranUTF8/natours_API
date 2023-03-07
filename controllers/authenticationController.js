@@ -147,16 +147,18 @@ const resetPassword = catchAsyncError(async (req, res, next) => {
 
 // Update user password
 const updateUserPassword = catchAsyncError(async (req, res, next) => {
-  const { oldPassword, newPassword, confirmNewPassword } = req.body;
+  const { currentPassword, newPassword, confirmNewPassword } = req.body;
 
   // Get user current password and check with the logged in users password
   const user = await User.findById({ _id: req.user.id }).select("+password");
 
   //? Compare user password with the hashed password
   const isPasswordCorrect = await user.comparePassword(
-    oldPassword,
+    currentPassword,
     user.password
   );
+
+
 
   // If correct than update and send with new jwt
   if (isPasswordCorrect) {
